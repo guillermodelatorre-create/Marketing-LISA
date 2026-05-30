@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LISA Institute — Dashboard Estratégico de Publicidad</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            lisa: {
+              900: '#0a0f1e',
+              800: '#0f1729',
+              700: '#162040',
+              600: '#1e2d55',
+              500: '#1d3a8a',
+              400: '#2563eb',
+              300: '#3b82f6',
+              accent: '#f59e0b',
+              gold: '#d97706',
+              green: '#10b981',
+              red: '#ef4444',
+              purple: '#8b5cf6',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background: #0a0f1e; font-family: 'Inter', system-ui, sans-serif; }
+    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .glass-blue { background: rgba(37,99,235,0.1); border: 1px solid rgba(59,130,246,0.25); }
+    .glass-gold { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); }
+    .glass-green { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+    .glass-red { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); }
+    .glass-purple { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.25); }
+    .nav-tab { transition: all 0.2s; cursor: pointer; }
+    .nav-tab.active { background: rgba(37,99,235,0.2); border-color: rgba(59,130,246,0.6); color: #93c5fd; }
+    .nav-tab:not(.active):hover { background: rgba(255,255,255,0.05); }
+    .badge { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 8px; border-radius: 9999px; }
+    .priority-critical { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+    .priority-high { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.4); }
+    .priority-medium { background: rgba(59,130,246,0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
+    .priority-low { background: rgba(107,114,128,0.2); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+    .section { display: none; }
+    .section.active { display: block; }
+    .funnel-bar { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    .timeline-item { position: relative; }
+    .timeline-item::before { content: ''; position: absolute; left: 11px; top: 28px; bottom: -8px; width: 2px; background: rgba(37,99,235,0.3); }
+    .timeline-item:last-child::before { display: none; }
+    .hook-card { transition: all 0.25s; }
+    .hook-card:hover { transform: translateY(-2px); background: rgba(255,255,255,0.07); }
+    .progress-ring { transform: rotate(-90deg); }
+    .animate-pulse-slow { animation: pulse 3s infinite; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.35s ease forwards; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f1729; } ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+    .tooltip-custom { position: absolute; background: #162040; border: 1px solid rgba(59,130,246,0.4); color: #e2e8f0; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; pointer-events: none; white-space: nowrap; z-index: 50; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-200">
+
+<!-- ═══════════════════════════════════════════════════ HEADER ═══ -->
+<header class="sticky top-0 z-40" style="background: rgba(10,15,30,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(37,99,235,0.25);">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #1d3a8a, #2563eb);">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      </div>
+      <div>
+        <div class="text-sm font-bold text-white tracking-wide">LISA Institute</div>
+        <div class="text-xs text-slate-400">Dashboard Estratégico · Mayo 2026</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="text-right hidden sm:block">
+        <div class="text-xs text-slate-400">Inversión mensual</div>
+        <div class="text-sm font-bold text-blue-400">9.000 – 15.000 €</div>
+      </div>
+      <div class="badge priority-high">Urgente · julio 2026</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════ NAV TABS ═══ -->
+<nav class="max-w-7xl mx-auto px-4 pt-4 pb-0">
+  <div class="flex gap-2 overflow-x-auto pb-1" style="scrollbar-width: none;">
+    <button class="nav-tab active glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('overview', this)">
+      📊 Visión General
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('budget', this)">
+      💰 Presupuesto
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('funnel', this)">
+      🔽 Embudo de Ventas
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('campaigns', this)">
+      📣 Arquitectura
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('hooks', this)">
+      🪝 Ganchos
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('roadmap', this)">
+      🗓 Hoja de Ruta
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('kpis', this)">
+      🎯 KPIs
+    </button>
+    <button class="nav-tab glass text-sm px-4 py-2 rounded-lg border border-transparent text-slate-300 whitespace-nowrap" onclick="showSection('alliances', this)">
+      🤝 Alianzas
+    </button>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+<!-- ═══════════════════════════════════ SECTION: OVERVIEW ═══ -->
+<section id="overview" class="section active fade-in">
+
+  <!-- Unit Economics Banner -->
+  <div class="glass-gold rounded-xl p-4 mb-6">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-yellow-400 text-lg">⚡</span>
+      <span class="text-yellow-400 font-semibold text-sm">Diagnóstico Inicial — Unit Economics</span>
+      <span class="badge priority-high ml-auto">Hipótesis base · validar esta semana</span>
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="text-center">
+        <div class="text-2xl font-bold text-white">280</div>
+        <div class="text-xs text-slate-400">Leads / mes</div>
+        <div class="text-xs text-yellow-400 mt-1">a 9.000€</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-white">~32€</div>
+        <div class="text-xs text-slate-400">CPL actual</div>
+        <div class="text-xs text-green-400 mt-1">competitivo para 4.190€</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-white">~25</div>
+        <div class="text-xs text-slate-400">Matrículas estimadas</div>
+        <div class="text-xs text-slate-500 mt-1">@ 25% booking · 35% close</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-yellow-400">11.6x</div>
+        <div class="text-xs text-slate-400">MER estimado</div>
+        <div class="text-xs text-green-400 mt-1">extraordinario si real</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Cards Row -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass rounded-xl p-4">
+      <div class="text-xs text-slate-400 mb-1">Ticket medio</div>
+      <div class="text-2xl font-bold text-blue-400">4.190€</div>
+      <div class="text-xs text-slate-500 mt-1">5 programas de máster</div>
+    </div>
+    <div class="glass rounded-xl p-4">
+      <div class="text-xs text-slate-400 mb-1">CAC objetivo</div>
+      <div class="text-2xl font-bold text-green-400">≤450€</div>
+      <div class="text-xs text-green-500 mt-1">LTV:CAC = 9.3x</div>
+    </div>
+    <div class="glass rounded-xl p-4">
+      <div class="text-xs text-slate-400 mb-1">Mercado principal</div>
+      <div class="text-2xl font-bold text-white">90%</div>
+      <div class="text-xs text-slate-500 mt-1">España · 10% LatAm</div>
+    </div>
+    <div class="glass rounded-xl p-4">
+      <div class="text-xs text-slate-400 mb-1">Plataformas activas</div>
+      <div class="text-2xl font-bold text-purple-400">1 → 4</div>
+      <div class="text-xs text-purple-400 mt-1">Meta + Google + LinkedIn + YT</div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Current vs Target spend -->
+    <div class="glass rounded-xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">Distribución de Presupuesto · Actual vs Recomendado</div>
+      <div class="flex gap-4 items-center">
+        <div class="relative w-36 h-36 flex-shrink-0">
+          <canvas id="chartCurrentBudget"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-xs text-slate-400">Actual</div>
+            <div class="text-sm font-bold text-white">9k€</div>
+          </div>
+        </div>
+        <div class="relative w-36 h-36 flex-shrink-0">
+          <canvas id="chartTargetBudget"></canvas>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-xs text-slate-400">Target</div>
+            <div class="text-sm font-bold text-white">12k€</div>
+          </div>
+        </div>
+        <div class="flex-1 space-y-2 min-w-0">
+          <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background:#3b82f6"></div><span class="text-xs text-slate-300 truncate">Meta Ads</span></div>
+          <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background:#f59e0b"></div><span class="text-xs text-slate-300 truncate">Google Search</span></div>
+          <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background:#8b5cf6"></div><span class="text-xs text-slate-300 truncate">LinkedIn Ads</span></div>
+          <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background:#ef4444"></div><span class="text-xs text-slate-300 truncate">YouTube</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ICP breakdown -->
+    <div class="glass rounded-xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">Segmentos ICP por Plataforma Óptima</div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Profesionales Seguridad (Policía, Militar, Detective)</span><span class="text-blue-400">LinkedIn + Meta</span></div>
+          <div class="h-2 rounded-full bg-slate-700 overflow-hidden"><div class="h-full rounded-full" style="width: 55%; background: linear-gradient(90deg, #3b82f6, #8b5cf6);"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Reconversión Laboral (perfiles corporativos)</span><span class="text-yellow-400">Meta + YouTube</span></div>
+          <div class="h-2 rounded-full bg-slate-700 overflow-hidden"><div class="h-full rounded-full" style="width: 30%; background: linear-gradient(90deg, #f59e0b, #ef4444);"></div></div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="text-slate-300">Abogados / Criminólogos</span><span class="text-green-400">Google + LinkedIn</span></div>
+          <div class="h-2 rounded-full bg-slate-700 overflow-hidden"><div class="h-full rounded-full" style="width: 15%; background: linear-gradient(90deg, #10b981, #3b82f6);"></div></div>
+        </div>
+      </div>
+      <div class="mt-5">
+        <div class="text-sm font-semibold text-white mb-3">Diferencial competitivo vs UNIR / Nebrija</div>
+        <div class="grid grid-cols-3 gap-2">
+          <div class="glass-blue rounded-lg p-2 text-center">
+            <div class="text-lg mb-1">🎓</div>
+            <div class="text-xs text-blue-300 font-medium">Profesorado en activo</div>
+          </div>
+          <div class="glass-gold rounded-lg p-2 text-center">
+            <div class="text-lg mb-1">💼</div>
+            <div class="text-xs text-yellow-300 font-medium">LISA Work</div>
+          </div>
+          <div class="glass-green rounded-lg p-2 text-center">
+            <div class="text-lg mb-1">📈</div>
+            <div class="text-xs text-green-300 font-medium">Empleabilidad real</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gap Estructural Alert -->
+  <div class="glass-red rounded-xl p-4">
+    <div class="flex items-start gap-3">
+      <span class="text-red-400 text-xl flex-shrink-0">⚠️</span>
+      <div>
+        <div class="text-red-300 font-semibold text-sm mb-1">Gap Estructural Crítico Identificado</div>
+        <div class="text-xs text-slate-300 leading-relaxed">Operáis con <strong class="text-white">una sola plataforma</strong> para un producto de 4.190€. Esto crea 3 riesgos sistémicos: (1) Dependencia total del algoritmo de Meta, (2) Ausencia de captura de intención en Google Search — la demanda activa va a UNIR, (3) Sin cobertura del canal profesional B2B donde vive vuestro ICP primario (LinkedIn). El número crítico que necesitáis esta semana: ratio lead→entrevista y entrevista→matrícula. Sin esos datos, cualquier optimización apunta a ciegas.</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: BUDGET ═══ -->
+<section id="budget" class="section fade-in">
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Budget Bar Chart -->
+    <div class="glass rounded-xl p-5 lg:col-span-2">
+      <div class="text-sm font-semibold text-white mb-4">Asignación de Presupuesto Recomendada — Base 12.000€/mes</div>
+      <canvas id="chartBudgetBars" height="180"></canvas>
+    </div>
+    <!-- Rules -->
+    <div class="space-y-3">
+      <div class="glass-blue rounded-xl p-4">
+        <div class="text-xs font-bold text-blue-400 mb-2">📐 Regla 70/20/10</div>
+        <div class="space-y-2 text-xs text-slate-300">
+          <div class="flex justify-between"><span>70% Probado</span><span class="text-white font-bold">8.400€</span></div>
+          <div class="h-1.5 bg-slate-700 rounded-full"><div class="h-full bg-blue-500 rounded-full" style="width:70%"></div></div>
+          <div class="flex justify-between"><span>20% Crecimiento</span><span class="text-white font-bold">2.400€</span></div>
+          <div class="h-1.5 bg-slate-700 rounded-full"><div class="h-full bg-purple-500 rounded-full" style="width:20%"></div></div>
+          <div class="flex justify-between"><span>10% Testing</span><span class="text-white font-bold">1.200€</span></div>
+          <div class="h-1.5 bg-slate-700 rounded-full"><div class="h-full bg-yellow-500 rounded-full" style="width:10%"></div></div>
+        </div>
+      </div>
+      <div class="glass rounded-xl p-4">
+        <div class="text-xs font-bold text-yellow-400 mb-2">⚖️ Regla de Escalado (20%)</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Si CPL &lt; 25€ durante 7 días consecutivos, aumentar presupuesto un <strong class="text-white">20% máximo</strong>. Nunca más de golpe — activa fase de aprendizaje.</div>
+      </div>
+      <div class="glass-red rounded-xl p-4">
+        <div class="text-xs font-bold text-red-400 mb-2">💀 Regla Kill 3x</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Si gasto supera <strong class="text-white">3× CPL objetivo (96€)</strong> con 0 conversiones → pausar ad set inmediatamente.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="glass rounded-xl p-4 border-t-2 border-blue-500">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-bold text-white">Meta Ads</div>
+        <div class="badge" style="background:rgba(59,130,246,0.2);color:#93c5fd;border:1px solid rgba(59,130,246,0.4);">Motor primario</div>
+      </div>
+      <div class="text-2xl font-bold text-blue-400 mb-1">7.200€</div>
+      <div class="text-xs text-slate-400 mb-3">60% del presupuesto</div>
+      <div class="space-y-1 text-xs text-slate-400">
+        <div>✓ Prospecting ICP × 2 campañas</div>
+        <div>✓ Retargeting leads no citados</div>
+        <div>✓ Testing creativos</div>
+        <div class="text-yellow-400">⚡ Reestructurar esta semana</div>
+      </div>
+    </div>
+    <div class="glass rounded-xl p-4 border-t-2 border-yellow-500">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-bold text-white">Google Search</div>
+        <div class="badge" style="background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.4);">Captura intención</div>
+      </div>
+      <div class="text-2xl font-bold text-yellow-400 mb-1">2.400€</div>
+      <div class="text-xs text-slate-400 mb-3">20% del presupuesto</div>
+      <div class="space-y-1 text-xs text-slate-400">
+        <div>✓ Brand Protection (always-on)</div>
+        <div>✓ Alta intención por programa</div>
+        <div>✓ Competidores (UNIR, Nebrija)</div>
+        <div class="text-red-400">🚨 Lanzar antes del viernes</div>
+      </div>
+    </div>
+    <div class="glass rounded-xl p-4 border-t-2 border-purple-500">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-bold text-white">LinkedIn Ads</div>
+        <div class="badge" style="background:rgba(139,92,246,0.2);color:#c4b5fd;border:1px solid rgba(139,92,246,0.4);">Canal profesional</div>
+      </div>
+      <div class="text-2xl font-bold text-purple-400 mb-1">1.800€</div>
+      <div class="text-xs text-slate-400 mb-3">15% del presupuesto</div>
+      <div class="space-y-1 text-xs text-slate-400">
+        <div>✓ Targeting por cargo exacto</div>
+        <div>✓ Lead Gen Forms nativos</div>
+        <div>✓ Policía, Militar, Detective</div>
+        <div class="text-purple-400">→ CPL más alto, leads mejores</div>
+      </div>
+    </div>
+    <div class="glass rounded-xl p-4 border-t-2 border-red-500">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm font-bold text-white">YouTube</div>
+        <div class="badge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">Autoridad</div>
+      </div>
+      <div class="text-2xl font-bold text-red-400 mb-1">600€</div>
+      <div class="text-xs text-slate-400 mb-3">5% del presupuesto</div>
+      <div class="space-y-1 text-xs text-slate-400">
+        <div>✓ Testimoniales en vídeo</div>
+        <div>✓ Profesores en activo</div>
+        <div>✓ Retargeting audiencia templada</div>
+        <div class="text-slate-500">→ Semana 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application funnel budget split -->
+  <div class="glass rounded-xl p-5">
+    <div class="text-sm font-semibold text-white mb-4">Distribución Intra-Campaña · Embudo de Aplicación High-Ticket</div>
+    <div class="grid grid-cols-3 gap-4 text-center">
+      <div class="glass-blue rounded-lg p-3">
+        <div class="text-xl font-bold text-blue-400">40%</div>
+        <div class="text-xs text-slate-400 mt-1">Prospecting frío</div>
+        <div class="text-xs text-slate-500">Nuevas audiencias</div>
+      </div>
+      <div class="glass-gold rounded-lg p-3">
+        <div class="text-xl font-bold text-yellow-400">40%</div>
+        <div class="text-xs text-slate-400 mt-1">Retargeting templado</div>
+        <div class="text-xs text-slate-500">Leads + visitantes</div>
+      </div>
+      <div class="glass-green rounded-lg p-3">
+        <div class="text-xl font-bold text-green-400">20%</div>
+        <div class="text-xs text-slate-400 mt-1">Testing</div>
+        <div class="text-xs text-slate-500">Creativos / audiencias</div>
+      </div>
+    </div>
+    <div class="mt-3 text-xs text-slate-500 text-center">Estándar para Application Funnels High-Ticket (+1.000€). El retargeting es clave — no solo prospecting.</div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: FUNNEL ═══ -->
+<section id="funnel" class="section fade-in">
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Funnel visual -->
+    <div class="glass rounded-xl p-5">
+      <div class="text-sm font-semibold text-white mb-6">Embudo de Conversión — 3 Fases LISA</div>
+      <div class="space-y-3">
+        <div class="group">
+          <div class="flex justify-between text-xs mb-2">
+            <span class="text-slate-300 font-medium">Impresiones totales</span>
+            <span class="text-slate-400">∞</span>
+          </div>
+          <div class="h-8 rounded-lg overflow-hidden bg-slate-700 relative">
+            <div class="h-full rounded-lg flex items-center px-3" style="width:100%; background: linear-gradient(90deg, #1d3a8a, #2563eb);">
+              <span class="text-xs text-white font-medium">100% — Alcance</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-2"><span class="text-slate-300 font-medium">Leads generados</span><span class="text-blue-400">280/mes</span></div>
+          <div class="h-8 rounded-lg overflow-hidden bg-slate-700">
+            <div class="h-full rounded-lg flex items-center px-3" style="width:72%; background: linear-gradient(90deg, #2563eb, #3b82f6);">
+              <span class="text-xs text-white font-medium">~2-3% conversión</span>
+            </div>
+          </div>
+        </div>
+        <div class="pl-4 border-l-2 border-blue-800">
+          <div class="text-xs text-slate-500 mb-2 italic">FASE 1: Llamada de Cualificación</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-2"><span class="text-slate-300 font-medium">Entrevistas agendadas</span><span class="text-yellow-400">~70/mes (25% est.)</span></div>
+          <div class="h-8 rounded-lg overflow-hidden bg-slate-700">
+            <div class="h-full rounded-lg flex items-center px-3" style="width:50%; background: linear-gradient(90deg, #d97706, #f59e0b);">
+              <span class="text-xs text-white font-medium">booking rate target ≥35%</span>
+            </div>
+          </div>
+        </div>
+        <div class="pl-4 border-l-2 border-yellow-800">
+          <div class="text-xs text-slate-500 mb-2 italic">FASE 2: Entrevista de Admisión (Google Meet)</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-2"><span class="text-slate-300 font-medium">Llamadas de formalización</span><span class="text-green-400">~35/mes</span></div>
+          <div class="h-8 rounded-lg overflow-hidden bg-slate-700">
+            <div class="h-full rounded-lg flex items-center px-3" style="width:32%; background: linear-gradient(90deg, #059669, #10b981);">
+              <span class="text-xs text-white font-medium">show rate target ≥85%</span>
+            </div>
+          </div>
+        </div>
+        <div class="pl-4 border-l-2 border-green-800">
+          <div class="text-xs text-slate-500 mb-2 italic">FASE 3: Formalización de Pago</div>
+        </div>
+        <div>
+          <div class="flex justify-between text-xs mb-2"><span class="text-slate-300 font-medium">Matrículas cerradas</span><span class="text-white font-bold">~25/mes · 104.750€</span></div>
+          <div class="h-8 rounded-lg overflow-hidden bg-slate-700">
+            <div class="h-full rounded-lg flex items-center px-3" style="width:16%; background: linear-gradient(90deg, #7c3aed, #8b5cf6);">
+              <span class="text-xs text-white font-medium">≥35% close rate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 p-3 glass-gold rounded-lg">
+        <div class="text-xs text-yellow-400 font-medium mb-1">⚡ Acelerador clave: Retargeting de leads no citados</div>
+        <div class="text-xs text-slate-400">Los 280 leads del mes pasado son una audiencia de retargeting infrautilizada. Meta puede calentar a los leads antes de que los asesores vuelvan a llamar.</div>
+      </div>
+    </div>
+
+    <!-- Funnel metrics + team -->
+    <div class="space-y-4">
+      <div class="glass rounded-xl p-5">
+        <div class="text-sm font-semibold text-white mb-4">Equipo Comercial · Estructura End-to-End</div>
+        <div class="space-y-3">
+          <div class="glass-blue rounded-lg p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">1</div>
+            <div>
+              <div class="text-sm font-medium text-white">Director de Admisiones</div>
+              <div class="text-xs text-slate-400">Jefe de Ventas · Supervisión y casos complejos</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="glass rounded-lg p-3 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-bold">A</div>
+              <div class="text-xs text-slate-300">Asesor 1</div>
+            </div>
+            <div class="glass rounded-lg p-3 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-bold">B</div>
+              <div class="text-xs text-slate-300">Asesor 2</div>
+            </div>
+            <div class="glass rounded-lg p-3 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-bold">C</div>
+              <div class="text-xs text-slate-300">Asesor 3</div>
+            </div>
+            <div class="glass rounded-lg p-3 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-slate-600 flex items-center justify-center text-white text-xs font-bold">D</div>
+              <div class="text-xs text-slate-300">Asesor 4</div>
+            </div>
+          </div>
+          <div class="text-xs text-slate-500 text-center">4 asesores · modelo End-to-End · cualificación + evaluación + cierre</div>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-5">
+        <div class="text-sm font-semibold text-white mb-4">Tracking Requerido — Stack Mínimo</div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between p-2 glass-green rounded-lg">
+            <div class="flex items-center gap-2"><span class="text-green-400 text-sm">●</span><span class="text-xs text-slate-300">Meta Pixel + evento Lead</span></div>
+            <div class="badge priority-critical">P1 · hoy</div>
+          </div>
+          <div class="flex items-center justify-between p-2 glass-red rounded-lg">
+            <div class="flex items-center gap-2"><span class="text-red-400 text-sm">●</span><span class="text-xs text-slate-300">Meta CAPI (server-side)</span></div>
+            <div class="badge priority-critical">P1 · semana 1</div>
+          </div>
+          <div class="flex items-center justify-between p-2 glass-gold rounded-lg">
+            <div class="flex items-center gap-2"><span class="text-yellow-400 text-sm">●</span><span class="text-xs text-slate-300">Google Tag + conversión form</span></div>
+            <div class="badge priority-high">P1 · semana 1</div>
+          </div>
+          <div class="flex items-center justify-between p-2 glass rounded-lg">
+            <div class="flex items-center gap-2"><span class="text-slate-400 text-sm">●</span><span class="text-xs text-slate-300">CRM → Offline Conversions Meta</span></div>
+            <div class="badge priority-medium">P2 · semana 2</div>
+          </div>
+          <div class="flex items-center justify-between p-2 glass rounded-lg">
+            <div class="flex items-center gap-2"><span class="text-slate-400 text-sm">●</span><span class="text-xs text-slate-300">LinkedIn Insight Tag</span></div>
+            <div class="badge priority-medium">P2 · semana 2</div>
+          </div>
+        </div>
+        <div class="mt-3 p-2 glass-blue rounded text-xs text-blue-300">
+          💡 Conectar CRM con Meta vía Offline Conversions es el paso más importante. Sin él, el algoritmo optimiza hacia formularios, no hacia matrículas reales.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: CAMPAIGNS ═══ -->
+<section id="campaigns" class="section fade-in">
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Meta Architecture -->
+    <div class="glass rounded-xl p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-bold">M</div>
+        <div class="text-sm font-semibold text-white">Meta Ads — Arquitectura Recomendada</div>
+        <div class="badge priority-critical ml-auto">Reestructurar ya</div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <!-- Phase 1 -->
+        <div class="border border-blue-800 rounded-lg overflow-hidden">
+          <div class="bg-blue-900/40 px-3 py-2 flex items-center justify-between">
+            <span class="text-blue-300 font-semibold">FASE 1 · Prospecting Frío (45%)</span>
+            <span class="text-blue-400">3.240€</span>
+          </div>
+          <div class="p-3 space-y-2">
+            <div class="glass rounded p-2">
+              <div class="text-white font-medium mb-1">📌 ICP-Profesionales_Seguridad</div>
+              <div class="text-slate-400 space-y-0.5">
+                <div>→ Ad Set 1: Intereses (Seg. privada, Criminología, D. penal)</div>
+                <div>→ Ad Set 2: Lookalike 1% leads cualificados (CRM)</div>
+                <div>→ Ad Set 3: Broad — creativo-driven</div>
+              </div>
+            </div>
+            <div class="glass rounded p-2">
+              <div class="text-white font-medium mb-1">📌 ICP-Reconversión_Laboral</div>
+              <div class="text-slate-400 space-y-0.5">
+                <div>→ Ad Set 1: Comportamientos (cambio carrera)</div>
+                <div>→ Ad Set 2: Lookalike 1% matrículas (&gt;100 en CRM)</div>
+                <div>→ Ad Set 3: Intereses (Inteligencia, Geopolítica)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Phase 2 -->
+        <div class="border border-yellow-800 rounded-lg overflow-hidden">
+          <div class="bg-yellow-900/30 px-3 py-2 flex items-center justify-between">
+            <span class="text-yellow-300 font-semibold">FASE 2 · Retargeting Templado (35%)</span>
+            <span class="text-yellow-400">2.520€</span>
+          </div>
+          <div class="p-3 space-y-2">
+            <div class="glass rounded p-2">
+              <div class="text-white font-medium mb-1">🔁 Retargeting_Caliente</div>
+              <div class="text-slate-400 space-y-0.5">
+                <div>→ Visitantes web últimos 7 días</div>
+                <div>→ Video viewers &gt;75% (14 días)</div>
+                <div>→ Engagement IG/FB (30 días)</div>
+              </div>
+            </div>
+            <div class="glass-gold rounded p-2">
+              <div class="text-yellow-300 font-medium mb-1">⭐ Retargeting_Leads_No_Citados</div>
+              <div class="text-slate-400">→ Lista CRM: leads sin entrevista agendada</div>
+              <div class="text-yellow-400 text-xs mt-1">Palanca directa sobre booking rate</div>
+            </div>
+          </div>
+        </div>
+        <!-- Phase 3 -->
+        <div class="border border-green-800 rounded-lg overflow-hidden">
+          <div class="bg-green-900/30 px-3 py-2 flex items-center justify-between">
+            <span class="text-green-300 font-semibold">FASE 3 · Testing (20%)</span>
+            <span class="text-green-400">1.440€</span>
+          </div>
+          <div class="p-3">
+            <div class="glass rounded p-2">
+              <div class="text-white font-medium mb-1">🧪 Test_Creativos</div>
+              <div class="text-slate-400 space-y-0.5">
+                <div>→ Hook A vs Hook B (misma audiencia)</div>
+                <div>→ Carrusel vs Vídeo vs Imagen estática</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <!-- Google Architecture -->
+      <div class="glass rounded-xl p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-7 h-7 rounded-lg bg-yellow-600 flex items-center justify-center text-white text-xs font-bold">G</div>
+          <div class="text-sm font-semibold text-white">Google Search — Estructura</div>
+          <div class="badge priority-critical ml-auto">🚨 Lanzar viernes</div>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="glass rounded p-2">
+            <div class="text-yellow-300 font-medium">🔒 Brand Protection (always-on · 200€)</div>
+            <div class="text-slate-400 mt-1">LISA Institute · Instituto LISA · LISA máster</div>
+          </div>
+          <div class="glass rounded p-2">
+            <div class="text-white font-medium mb-1">🎯 Alta Intención por Programa</div>
+            <div class="grid grid-cols-2 gap-1 text-slate-400">
+              <div>• máster ciberseguridad online</div>
+              <div>• máster analista criminal</div>
+              <div>• máster inteligencia españa</div>
+              <div>• máster geopolítica</div>
+              <div>• formación policía nacional</div>
+              <div>• criminología aplicada</div>
+            </div>
+          </div>
+          <div class="glass-red rounded p-2">
+            <div class="text-red-300 font-medium mb-1">⚔️ Competidores (exacto)</div>
+            <div class="text-slate-400">UNIR criminología · Nebrija máster · máster oficial criminología</div>
+          </div>
+          <div class="text-slate-500 mt-2">Puja inicial: Maximize Clicks, CPC máx. 3-4€ · Mover a Target CPA con 30+ conv/mes</div>
+        </div>
+      </div>
+
+      <!-- LinkedIn Architecture -->
+      <div class="glass rounded-xl p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-white text-xs font-bold">Li</div>
+          <div class="text-sm font-semibold text-white">LinkedIn — Targeting profesional</div>
+        </div>
+        <div class="text-xs space-y-2">
+          <div class="glass-purple rounded p-3">
+            <div class="text-purple-300 font-medium mb-2">Segmentación exacta ICP primario</div>
+            <div class="grid grid-cols-2 gap-1 text-slate-400">
+              <div>• Inspector de Policía</div>
+              <div>• Oficial Militar</div>
+              <div>• Detective Privado</div>
+              <div>• Abogado penalista</div>
+              <div>• Criminólogo</div>
+              <div>• Analista Inteligencia</div>
+            </div>
+            <div class="mt-2 text-slate-500">Sector: Seg. pública · Defensa · Legal · Antigüedad: 5-10+ años</div>
+          </div>
+          <div class="glass rounded p-2 text-slate-400">
+            Formato: <span class="text-white">Lead Gen Form nativo</span> — sin salir de LinkedIn, datos prellenados → CPL menor
+          </div>
+          <div class="glass-gold rounded p-2">
+            <span class="text-yellow-400">💡 CPL esperado 50-120€</span> — más caro que Meta pero calidad estructuralmente superior. Si la tasa de booking duplica, el coste por entrevista es equivalente.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert rules -->
+  <div class="glass rounded-xl p-5 mt-6">
+    <div class="text-sm font-semibold text-white mb-4">🤖 Reglas Automáticas Meta — Configurar esta semana</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="glass-red rounded-lg p-3 text-xs">
+        <div class="text-red-400 font-bold mb-2">REGLA 1 — Kill</div>
+        <div class="text-slate-400">SI gasto &gt; <span class="text-white">96€</span> Y conv = 0 → <span class="text-red-400">PAUSAR</span> ad set automáticamente</div>
+      </div>
+      <div class="glass-gold rounded-lg p-3 text-xs">
+        <div class="text-yellow-400 font-bold mb-2">REGLA 2 — Fatiga</div>
+        <div class="text-slate-400">SI frecuencia &gt; <span class="text-white">3.5</span> (7 días) → Notificar y rotar creativo</div>
+      </div>
+      <div class="glass-green rounded-lg p-3 text-xs">
+        <div class="text-green-400 font-bold mb-2">REGLA 3 — Escalar</div>
+        <div class="text-slate-400">SI CPL &lt; <span class="text-white">25€</span> durante 7 días + fuera de aprendizaje → +20% presupuesto</div>
+      </div>
+      <div class="glass-blue rounded-lg p-3 text-xs">
+        <div class="text-blue-400 font-bold mb-2">REGLA 4 — Budget</div>
+        <div class="text-slate-400">Nunca cambiar presupuesto Meta &gt; <span class="text-white">20% de golpe</span> — activa fase de aprendizaje</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: HOOKS ═══ -->
+<section id="hooks" class="section fade-in">
+
+  <div class="mb-4 text-sm text-slate-400">Los ganchos son el activo más escaso y valioso del sistema. Para profesionales de seguridad, los patrones que funcionan son <span class="text-white">identitarios, de autoridad y de miedo a quedarse atrás</span> — no de oportunidad genérica.</div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+
+    <div class="hook-card glass rounded-xl p-5 cursor-default">
+      <div class="flex items-start justify-between mb-3">
+        <div class="badge priority-critical">Arquetipo 1</div>
+        <div class="text-xs text-slate-500">Identidad amenazada</div>
+      </div>
+      <blockquote class="text-slate-200 text-sm leading-relaxed italic border-l-2 border-red-500 pl-4 mb-4">
+        "El analista que no se actualiza, es sustituido por uno que sí lo hizo. En inteligencia artificial y ciberinteligencia, la brecha entre quien formó con mandos en activo y quien no es visible en 18 meses."
+      </blockquote>
+      <div class="flex items-center justify-between text-xs">
+        <div class="text-slate-500">CTA: Conoce el Máster →</div>
+        <div class="flex gap-1">
+          <span class="badge" style="background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">Meta</span>
+          <span class="badge" style="background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);">LinkedIn</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hook-card glass rounded-xl p-5 cursor-default">
+      <div class="flex items-start justify-between mb-3">
+        <div class="badge priority-critical">Arquetipo 2</div>
+        <div class="text-xs text-slate-500">Autoridad de fuente</div>
+      </div>
+      <blockquote class="text-slate-200 text-sm leading-relaxed italic border-l-2 border-blue-500 pl-4 mb-4">
+        "Nuestros profesores no enseñan teoría. Son los que dirigen las operaciones ahora mismo.<br><br>[Nombre · Cargo real · Institución] — Docente LISA Institute"
+      </blockquote>
+      <div class="flex items-center justify-between text-xs">
+        <div class="text-slate-500">Formato: vídeo 15-30s profesor en entorno real</div>
+        <div class="flex gap-1">
+          <span class="badge" style="background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">Meta</span>
+          <span class="badge" style="background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);">LI</span>
+          <span class="badge" style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);">YT</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hook-card glass rounded-xl p-5 cursor-default">
+      <div class="flex items-start justify-between mb-3">
+        <div class="badge priority-high">Arquetipo 3</div>
+        <div class="text-xs text-slate-500">Resultado concreto</div>
+      </div>
+      <blockquote class="text-slate-200 text-sm leading-relaxed italic border-l-2 border-green-500 pl-4 mb-4">
+        "Hace 14 meses, [Nombre] trabajaba como [cargo anterior]. Hoy dirige el [departamento] de [empresa/institución].<br><br>El Máster de Analista de Inteligencia no fue un título. Fue el cambio de carrera."
+      </blockquote>
+      <div class="flex items-center justify-between text-xs">
+        <div class="text-slate-500">Formato: testimonial vídeo UGC-style 60-90s</div>
+        <div class="flex gap-1">
+          <span class="badge" style="background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">Meta</span>
+          <span class="badge" style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3);">YouTube</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hook-card glass rounded-xl p-5 cursor-default">
+      <div class="flex items-start justify-between mb-3">
+        <div class="badge priority-high">Arquetipo 4</div>
+        <div class="text-xs text-slate-500">Acceso exclusivo (LISA Work)</div>
+      </div>
+      <blockquote class="text-slate-200 text-sm leading-relaxed italic border-l-2 border-yellow-500 pl-4 mb-4">
+        "No vendemos un máster. Te damos acceso a la bolsa de empleo que las empresas de inteligencia privada, consultoras de seguridad y organismos públicos usan primero.<br><br>Los candidatos sin formación LISA no acceden a ella."
+      </blockquote>
+      <div class="flex items-center justify-between text-xs">
+        <div class="text-slate-500">Uso: retargeting y leads que comparan con UNIR</div>
+        <div class="flex gap-1">
+          <span class="badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);">Retargeting</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hook-card glass rounded-xl p-5 cursor-default lg:col-span-2">
+      <div class="flex items-start justify-between mb-3">
+        <div class="badge priority-medium">Arquetipo 5</div>
+        <div class="text-xs text-slate-500">Urgencia estructural — para julio</div>
+      </div>
+      <blockquote class="text-slate-200 text-sm leading-relaxed italic border-l-2 border-purple-500 pl-4 mb-4">
+        "Nueva convocatoria julio 2026. Las plazas son limitadas por diseño — el programa es intensivo y personalizado. El proceso de admisión tarda 72h.<br><br>¿Estás dentro del perfil que buscamos?"
+      </blockquote>
+      <div class="flex items-center justify-between text-xs">
+        <div class="text-slate-500">Uso: activación pre-julio + retargeting agresivo · CTA: "Solicita tu entrevista ahora →"</div>
+        <div class="flex gap-1">
+          <span class="badge" style="background:rgba(59,130,246,0.15);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);">Meta</span>
+          <span class="badge" style="background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);">LinkedIn</span>
+          <span class="badge" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);">Google</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creative production plan -->
+  <div class="glass rounded-xl p-5">
+    <div class="text-sm font-semibold text-white mb-4">Plan de Producción Creativa — Esta Semana</div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead>
+          <tr class="text-slate-400 border-b border-slate-700">
+            <th class="text-left py-2 pr-4">Prioridad</th>
+            <th class="text-left py-2 pr-4">Asset</th>
+            <th class="text-left py-2 pr-4">Plataforma</th>
+            <th class="text-left py-2 pr-4">Quién</th>
+            <th class="text-left py-2">Plazo</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800">
+          <tr>
+            <td class="py-2 pr-4"><span class="badge priority-critical">P1</span></td>
+            <td class="py-2 pr-4 text-slate-300">Vídeo testimonial alumno (60-90s, iPhone)</td>
+            <td class="py-2 pr-4 text-blue-400">Meta + YouTube</td>
+            <td class="py-2 pr-4 text-slate-400">Dirección Académica</td>
+            <td class="py-2 text-green-400">Días 1-3</td>
+          </tr>
+          <tr>
+            <td class="py-2 pr-4"><span class="badge priority-critical">P1</span></td>
+            <td class="py-2 pr-4 text-slate-300">Imagen gancho identidad (1-3 variantes)</td>
+            <td class="py-2 pr-4 text-blue-400">Meta + Google Display</td>
+            <td class="py-2 pr-4 text-slate-400">Diseño interno</td>
+            <td class="py-2 text-green-400">Días 1-2</td>
+          </tr>
+          <tr>
+            <td class="py-2 pr-4"><span class="badge priority-high">P2</span></td>
+            <td class="py-2 pr-4 text-slate-300">Vídeo profesor en activo (15-30s)</td>
+            <td class="py-2 pr-4 text-purple-400">Meta + LinkedIn</td>
+            <td class="py-2 pr-4 text-slate-400">Coord. con docente</td>
+            <td class="py-2 text-yellow-400">Días 3-5</td>
+          </tr>
+          <tr>
+            <td class="py-2 pr-4"><span class="badge priority-high">P2</span></td>
+            <td class="py-2 pr-4 text-slate-300">Lead Gen Form LinkedIn + copy</td>
+            <td class="py-2 pr-4 text-purple-400">LinkedIn</td>
+            <td class="py-2 pr-4 text-slate-400">Marketing</td>
+            <td class="py-2 text-yellow-400">Días 1-2</td>
+          </tr>
+          <tr>
+            <td class="py-2 pr-4"><span class="badge priority-medium">P3</span></td>
+            <td class="py-2 pr-4 text-slate-300">Carrusel currículum/diferencial</td>
+            <td class="py-2 pr-4 text-blue-400">Meta</td>
+            <td class="py-2 pr-4 text-slate-400">Diseño interno</td>
+            <td class="py-2 text-slate-400">Días 4-7</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-3 glass-blue rounded p-3 text-xs text-blue-300">
+      💡 <strong>Regla de producción LISA:</strong> No necesitáis producción profesional. Un profesor grabándose con el iPhone en su despacho (credenciales visibles al fondo) convierte mejor que un vídeo corporativo. La autenticidad es el diferenciador frente a UNIR.
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: ROADMAP ═══ -->
+<section id="roadmap" class="section fade-in">
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <div class="lg:col-span-2 space-y-4">
+
+      <!-- Week 1 -->
+      <div class="glass rounded-xl p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="badge priority-critical text-sm">🚨 Esta semana · Días 1-7</div>
+          <div class="text-xs text-slate-500">URGENTE · Pre-julio</div>
+        </div>
+        <div class="space-y-3">
+          <div class="timeline-item pl-7 pb-2">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">1</div>
+            <div class="text-sm text-white font-medium">Auditar Meta actual</div>
+            <div class="text-xs text-slate-400 mt-0.5">Campañas activas, ad sets, creativos, frecuencia, CPL por campaña</div>
+            <div class="text-xs text-slate-500 mt-1">Marketing · Días 1-2</div>
+          </div>
+          <div class="timeline-item pl-7 pb-2">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold">2</div>
+            <div class="text-sm text-white font-medium">Retargeting leads no citados en Meta</div>
+            <div class="text-xs text-slate-400 mt-0.5">Subir lista CRM de leads sin entrevista → nueva campaña</div>
+            <div class="text-xs text-slate-500 mt-1">Marketing + Admisiones · Días 1-2</div>
+          </div>
+          <div class="timeline-item pl-7 pb-2">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-bold">3</div>
+            <div class="text-sm text-white font-medium">LinkedIn Lead Gen Form</div>
+            <div class="text-xs text-slate-400 mt-0.5">Crear cuenta + campaña piloto + Lead Gen Form con copy</div>
+            <div class="text-xs text-slate-500 mt-1">Marketing · Días 1-2</div>
+          </div>
+          <div class="timeline-item pl-7 pb-2">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-bold">4</div>
+            <div class="text-sm text-white font-medium">Google Ads — Brand Protection</div>
+            <div class="text-xs text-slate-400 mt-0.5">Abrir cuenta + lanzar campaña de marca (siempre activa)</div>
+            <div class="text-xs text-slate-500 mt-1">Marketing · Días 3-4</div>
+          </div>
+          <div class="timeline-item pl-7 pb-2">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-yellow-500 flex items-center justify-center text-white text-xs font-bold">5</div>
+            <div class="text-sm text-white font-medium">Grabar testimonial de alumno</div>
+            <div class="text-xs text-slate-400 mt-0.5">Vídeo iPhone 60-90s · mayor impacto con menor coste</div>
+            <div class="text-xs text-slate-500 mt-1">Dirección Académica · Días 3-4</div>
+          </div>
+          <div class="timeline-item pl-7">
+            <div class="absolute left-0 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">6</div>
+            <div class="text-sm text-white font-medium">Lanzar Google Search alta intención</div>
+            <div class="text-xs text-slate-400 mt-0.5">Campañas por programa + competidores</div>
+            <div class="text-xs text-slate-500 mt-1">Marketing · Días 5-7</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weeks 2-4 -->
+      <div class="glass rounded-xl p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="badge priority-high">Semanas 2-4 · Optimización</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs text-slate-400">
+          <div class="glass rounded p-2">✓ Meta CAPI + Offline Conversions CRM</div>
+          <div class="glass rounded p-2">✓ Lanzar YouTube con testimonial</div>
+          <div class="glass rounded p-2">✓ Keywords ganadoras Google (análisis)</div>
+          <div class="glass rounded p-2">✓ Revisión calidad leads por plataforma</div>
+          <div class="glass rounded p-2">✓ Reestructurar Meta según arquitectura</div>
+          <div class="glass rounded p-2">✓ Escalar ad sets CPL &lt; 40€ (+20%)</div>
+        </div>
+      </div>
+
+      <!-- Months 2-3 -->
+      <div class="glass rounded-xl p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="badge priority-medium">Mes 2-3 · Escala</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-xs text-slate-400">
+          <div class="glass rounded p-2">✓ Reasignar budget según coste/entrevista real</div>
+          <div class="glass rounded p-2">✓ Lookalike basado en matrículas reales</div>
+          <div class="glass rounded p-2">✓ 2-3 creativos nuevos/mes (anti-fatiga)</div>
+          <div class="glass rounded p-2">✓ Activar alianzas Tier 1</div>
+          <div class="glass rounded p-2">✓ Smart Bidding Google (30+ conv/mes)</div>
+          <div class="glass rounded p-2">✓ Re-auditoría de resultados</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Gantt-style -->
+    <div class="glass rounded-xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">Timeline Visual</div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>Meta Ads (reestructura)</span><span class="text-red-400">Semana 1</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-blue-500" style="width:100%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>Google Search (lanzamiento)</span><span class="text-yellow-400">Días 5-7</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-yellow-500" style="width:100%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>LinkedIn piloto</span><span class="text-purple-400">Días 1-2</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-purple-500" style="width:100%"></div>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-700">
+          <div class="flex justify-between text-slate-400 mb-1"><span>Meta CAPI online</span><span>Semana 2</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-blue-400" style="width:80%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>YouTube activo</span><span>Semana 2</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-red-400" style="width:70%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>Offline Conversions</span><span>Semana 2-3</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-green-500" style="width:60%"></div>
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-700">
+          <div class="flex justify-between text-slate-400 mb-1"><span>Alianzas Tier 1</span><span>Mes 2</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-green-400" style="width:40%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>Smart Bidding Google</span><span>Mes 2</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-yellow-400" style="width:35%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between text-slate-400 mb-1"><span>Re-auditoría completa</span><span>Mes 3</span></div>
+          <div class="h-3 bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-slate-400" style="width:20%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: KPIs ═══ -->
+<section id="kpis" class="section fade-in">
+
+  <div class="glass rounded-xl p-5 mb-6">
+    <div class="text-sm font-semibold text-white mb-5">Evolución de KPIs — Proyección 6 Meses</div>
+    <canvas id="chartKpiEvolution" height="200"></canvas>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+    <!-- KPI table -->
+    <div class="glass rounded-xl p-5">
+      <div class="text-sm font-semibold text-white mb-4">Targets por Fase</div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-700">
+              <th class="text-left py-2 pr-3">Métrica</th>
+              <th class="text-center py-2 pr-3">Actual</th>
+              <th class="text-center py-2 pr-3">Mes 1</th>
+              <th class="text-center py-2 pr-3">Mes 3</th>
+              <th class="text-center py-2">Mes 6</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800">
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">CPL (coste/lead)</td>
+              <td class="py-2 pr-3 text-center text-white">~32€</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≤35€</td>
+              <td class="py-2 pr-3 text-center text-green-400">≤28€</td>
+              <td class="py-2 text-center text-green-400">≤25€</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">Lead → entrevista</td>
+              <td class="py-2 pr-3 text-center text-slate-500">⚠ Medir</td>
+              <td class="py-2 pr-3 text-center text-slate-400">Medir</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≥35%</td>
+              <td class="py-2 text-center text-green-400">≥40%</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">Entrevista → matrícula</td>
+              <td class="py-2 pr-3 text-center text-slate-500">⚠ Medir</td>
+              <td class="py-2 pr-3 text-center text-slate-400">Medir</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≥30%</td>
+              <td class="py-2 text-center text-green-400">≥35%</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">Coste por entrevista</td>
+              <td class="py-2 pr-3 text-center text-slate-500">Calcular</td>
+              <td class="py-2 pr-3 text-center text-white">≤120€</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≤90€</td>
+              <td class="py-2 text-center text-green-400">≤75€</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">CAC (coste matrícula)</td>
+              <td class="py-2 pr-3 text-center text-slate-500">Calcular</td>
+              <td class="py-2 pr-3 text-center text-white">≤450€</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≤320€</td>
+              <td class="py-2 text-center text-green-400">≤280€</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">MER real</td>
+              <td class="py-2 pr-3 text-center text-slate-500">Calcular</td>
+              <td class="py-2 pr-3 text-center text-white">≥6x</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">≥8x</td>
+              <td class="py-2 text-center text-green-400">≥10x</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">Leads LinkedIn</td>
+              <td class="py-2 pr-3 text-center text-slate-500">0</td>
+              <td class="py-2 pr-3 text-center text-white">20-30</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">60-80</td>
+              <td class="py-2 text-center text-green-400">100+</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 text-slate-300">Leads Google Search</td>
+              <td class="py-2 pr-3 text-center text-slate-500">0</td>
+              <td class="py-2 pr-3 text-center text-white">30-50</td>
+              <td class="py-2 pr-3 text-center text-yellow-400">80-120</td>
+              <td class="py-2 text-center text-green-400">150+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- North Star -->
+    <div class="space-y-4">
+      <div class="glass-gold rounded-xl p-5">
+        <div class="text-sm font-bold text-yellow-400 mb-3">⭐ KPI Más Importante — No Medido Actualmente</div>
+        <div class="text-slate-300 text-xs leading-relaxed mb-4">
+          El CPL (32€) es un proxy, no el objetivo real. El KPI de negocio es el <strong class="text-white">Coste por Entrevista Completada</strong> y el <strong class="text-white">Coste por Matrícula Real (CAC)</strong>.
+        </div>
+        <div class="space-y-2 text-xs">
+          <div class="glass rounded p-2 flex justify-between">
+            <span class="text-slate-400">Lead LinkedIn @80€ · booking 50%</span>
+            <span class="text-green-400 font-bold">160€/entrevista ✓</span>
+          </div>
+          <div class="glass rounded p-2 flex justify-between">
+            <span class="text-slate-400">Lead Meta @30€ · booking 15%</span>
+            <span class="text-red-400 font-bold">200€/entrevista ✗</span>
+          </div>
+          <div class="glass-blue rounded p-2 text-blue-300 mt-2">
+            El lead más barato no siempre genera el mejor ROI. Medir por coste por entrevista, no por CPL.
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="text-sm font-semibold text-white mb-3">CAC vs LTV — Ratio de Salud</div>
+        <canvas id="chartCacLtv" height="140"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Competitor differentiation -->
+  <div class="glass rounded-xl p-5">
+    <div class="text-sm font-semibold text-white mb-4">Diferenciación Competitiva en Anuncios — Cómo Usarla</div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="glass-blue rounded-lg p-4">
+        <div class="text-blue-300 font-semibold text-sm mb-2">🎓 Profesorado en activo</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Nombre + cargo real + institución en el anuncio. No "expertos" — <strong class="text-white">"Inspector Jefe de la Brigada de Homicidios de Madrid"</strong></div>
+      </div>
+      <div class="glass-gold rounded-lg p-4">
+        <div class="text-yellow-300 font-semibold text-sm mb-2">💼 LISA Work</div>
+        <div class="text-xs text-slate-400 leading-relaxed"><strong class="text-white">"Acceso exclusivo a la bolsa de empleo que las empresas de inteligencia privada usan antes que LinkedIn."</strong> Lo que UNIR no puede decir.</div>
+      </div>
+      <div class="glass-green rounded-lg p-4">
+        <div class="text-green-300 font-semibold text-sm mb-2">📈 Empleabilidad real</div>
+        <div class="text-xs text-slate-400 leading-relaxed">Dato concreto si lo tenéis: <strong class="text-white">"El X% de graduados trabaja en [sector] en los 12 meses posteriores"</strong> o testimonial con cargo actual.</div>
+      </div>
+    </div>
+    <div class="mt-4 glass-purple rounded p-3 text-xs text-purple-300">
+      💡 El mensaje que UNIR/Nebrija no pueden decir: <strong class="text-white">"Nuestro programa lo diseñan y lo imparten las personas que están haciendo ese trabajo ahora mismo."</strong> Ese es vuestro moat. Cada anuncio debe tocar ese punto.
+    </div>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════ SECTION: ALLIANCES ═══ -->
+<section id="alliances" class="section fade-in">
+
+  <div class="mb-4 text-sm text-slate-400">Canal no pagado de mayor ROI. Las alianzas correctas generan leads cualificados a coste cero — acceso directo a vuestro ICP primario con autoridad validada.</div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+    <div class="glass rounded-xl p-5 border-t-2 border-red-500">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="badge priority-critical">Tier 1</div>
+        <div class="text-sm font-semibold text-white">Credibilidad y Acceso Directo</div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Asociaciones Profesionales</div>
+          <div class="text-slate-400">AMPE · Asoc. Española de Criminología · Colegios de Abogados</div>
+          <div class="text-green-400 mt-1">→ Newsletter + evento virtual</div>
+          <div class="text-slate-500">Activación: 2-4 semanas</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Sindicatos Policiales</div>
+          <div class="text-slate-400">SUP · CEP · UFP — miles de miembros = ICP primario</div>
+          <div class="text-green-400 mt-1">→ Comunicación interna + descuento corporativo</div>
+          <div class="text-slate-500">Activación: 3-6 semanas</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Asociaciones Fuerzas Armadas</div>
+          <div class="text-slate-400">AUME · FAPROMIL — alta calidad de lead</div>
+          <div class="text-green-400 mt-1">→ Acuerdo formativo + beneficio social</div>
+          <div class="text-slate-500">Activación: 3-6 semanas</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Colegios de Detectives (FEDIP)</div>
+          <div class="text-slate-400">Nicho premium, alto interés en formación especializada</div>
+          <div class="text-green-400 mt-1">→ Acuerdo formativo exclusivo</div>
+          <div class="text-slate-500">Activación: 2-3 semanas</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-xl p-5 border-t-2 border-yellow-500">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="badge priority-high">Tier 2</div>
+        <div class="text-sm font-semibold text-white">Distribución de Contenido</div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">YouTube Geopolítica y Defensa</div>
+          <div class="text-slate-400">La Pizarra de Yuri · Emilio Sánchez Hidalgo</div>
+          <div class="text-yellow-400 mt-1">→ Patrocinio de vídeo o mención pagada</div>
+          <div class="text-slate-500">Audiencia cualificada de alto interés</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Podcasts Seguridad y Defensa</div>
+          <div class="text-slate-400">Podcasts españoles de análisis geoestratégico</div>
+          <div class="text-yellow-400 mt-1">→ Episodio patrocinado con profesor en activo</div>
+          <div class="text-slate-500">Autoridad + audiencia captive</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Comunidades LinkedIn</div>
+          <div class="text-slate-400">Grupos de Seguridad Nacional e Inteligencia</div>
+          <div class="text-yellow-400 mt-1">→ Post de valor semanal del equipo docente</div>
+          <div class="text-slate-500">Orgánico pero alta cualificación</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass rounded-xl p-5 border-t-2 border-blue-500">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="badge priority-medium">Tier 3</div>
+        <div class="text-sm font-semibold text-white">Alianzas Corporativas</div>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Empresas Seguridad Privada</div>
+          <div class="text-slate-400">Prosegur · Securitas · Eulen Seguridad</div>
+          <div class="text-blue-400 mt-1">→ Acuerdo marco formación para mandos intermedios</div>
+          <div class="text-green-400 mt-1">Potencial: 5-15 matrículas por ciclo</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Despachos de Abogados Penalistas</div>
+          <div class="text-slate-400">Grandes despachos con departamentos de defensa o compliance</div>
+          <div class="text-blue-400 mt-1">→ Programa de formación continua B2B</div>
+        </div>
+        <div class="glass rounded p-3">
+          <div class="text-white font-medium mb-1">Consultoras de Ciberseguridad</div>
+          <div class="text-slate-400">GMV · S21sec · Accenture Security</div>
+          <div class="text-blue-400 mt-1">→ Máster Ciberseguridad como upskilling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alliance impact chart -->
+  <div class="glass rounded-xl p-5">
+    <div class="text-sm font-semibold text-white mb-4">Impacto Estimado de Alianzas · Leads Adicionales/Mes</div>
+    <canvas id="chartAlliances" height="160"></canvas>
+  </div>
+
+</section>
+
+</main>
+
+<!-- ═══════════════════════ FOOTER ═══ -->
+<footer class="max-w-7xl mx-auto px-4 py-6 mt-4 border-t border-slate-800">
+  <div class="text-center text-xs text-slate-600">
+    LISA Institute · Plan Estratégico de Publicidad Pagada · Mayo 2026 · Generado con Claude Ads
+  </div>
+</footer>
+
+<script>
+// ─── Navigation ───────────────────────────────────────────────
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById(id);
+  if (sec) { sec.classList.add('active'); sec.classList.remove('fade-in'); void sec.offsetWidth; sec.classList.add('fade-in'); }
+  if (btn) btn.classList.add('active');
+  // Init charts lazily
+  if (id === 'budget') initBudgetCharts();
+  if (id === 'kpis') initKpiCharts();
+  if (id === 'alliances') initAllianceChart();
+}
+
+// ─── Chart defaults ───────────────────────────────────────────
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = 'system-ui, sans-serif';
+Chart.defaults.font.size = 11;
+
+const PIE_COLORS = ['#3b82f6','#f59e0b','#8b5cf6','#ef4444'];
+const donutOpts = (cutout = '72%') => ({
+  type: 'doughnut',
+  options: {
+    cutout,
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` }
+    }},
+    animation: { duration: 800, easing: 'easeOutQuart' }
+  }
+});
+
+// ─── Overview charts (always init) ────────────────────────────
+(function initOverviewCharts() {
+  new Chart(document.getElementById('chartCurrentBudget'), {
+    ...donutOpts('75%'),
+    data: {
+      labels: ['Meta Ads','Google','LinkedIn','YouTube'],
+      datasets: [{ data: [100, 0, 0, 0], backgroundColor: PIE_COLORS, borderWidth: 2, borderColor: '#0a0f1e', hoverOffset: 4 }]
+    }
+  });
+  new Chart(document.getElementById('chartTargetBudget'), {
+    ...donutOpts('75%'),
+    data: {
+      labels: ['Meta Ads','Google','LinkedIn','YouTube'],
+      datasets: [{ data: [60, 20, 15, 5], backgroundColor: PIE_COLORS, borderWidth: 2, borderColor: '#0a0f1e', hoverOffset: 4 }]
+    }
+  });
+})();
+
+// ─── Budget charts ────────────────────────────────────────────
+let budgetChartsInit = false;
+function initBudgetCharts() {
+  if (budgetChartsInit) return; budgetChartsInit = true;
+  new Chart(document.getElementById('chartBudgetBars'), {
+    type: 'bar',
+    data: {
+      labels: ['Meta Ads', 'Google Search', 'LinkedIn Ads', 'YouTube'],
+      datasets: [
+        {
+          label: 'Actual (€)',
+          data: [9000, 0, 0, 0],
+          backgroundColor: 'rgba(100,116,139,0.4)',
+          borderColor: 'rgba(100,116,139,0.7)',
+          borderWidth: 1,
+          borderRadius: 6,
+        },
+        {
+          label: 'Target (€)',
+          data: [7200, 2400, 1800, 600],
+          backgroundColor: PIE_COLORS.map(c => c + 'cc'),
+          borderColor: PIE_COLORS,
+          borderWidth: 1,
+          borderRadius: 6,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top', labels: { boxWidth: 12, padding: 14 }},
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toLocaleString('es')}€` }}
+      },
+      scales: {
+        x: { grid: { display: false }},
+        y: { ticks: { callback: v => v.toLocaleString('es') + '€' }, grid: { color: 'rgba(255,255,255,0.05)' }}
+      },
+      animation: { duration: 900, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+// ─── KPI charts ───────────────────────────────────────────────
+let kpiChartsInit = false;
+function initKpiCharts() {
+  if (kpiChartsInit) return; kpiChartsInit = true;
+
+  const months = ['Actual','Mes 1','Mes 2','Mes 3','Mes 4','Mes 5','Mes 6'];
+  new Chart(document.getElementById('chartKpiEvolution'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'CPL (€)',
+          data: [32, 34, 31, 28, 27, 26, 25],
+          borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)',
+          tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#3b82f6',
+        },
+        {
+          label: 'CAC Objetivo (€/10)',
+          data: [null, 45, 40, 35, 33, 31, 28],
+          borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)',
+          tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#10b981',
+          borderDash: [5,3],
+        },
+        {
+          label: 'MER Estimado (×)',
+          data: [null, 6, 7, 8, 9, 9.5, 10],
+          borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)',
+          tension: 0.4, fill: false, pointRadius: 4, pointBackgroundColor: '#f59e0b',
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top', labels: { boxWidth: 12, padding: 14 }}},
+      scales: {
+        y: { title: { display: true, text: '€', color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' }},
+        y2: { position: 'right', title: { display: true, text: 'MER', color: '#64748b' }, grid: { display: false }},
+        x: { grid: { display: false }}
+      },
+      animation: { duration: 900 }
+    }
+  });
+
+  new Chart(document.getElementById('chartCacLtv'), {
+    type: 'bar',
+    data: {
+      labels: ['CAC Target', 'LTV (ticket)'],
+      datasets: [{
+        data: [450, 4190],
+        backgroundColor: ['rgba(239,68,68,0.7)', 'rgba(16,185,129,0.7)'],
+        borderColor: ['#ef4444','#10b981'],
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.raw.toLocaleString('es')}€` }}
+      },
+      scales: {
+        y: { ticks: { callback: v => v + '€' }, grid: { color: 'rgba(255,255,255,0.05)' }},
+        x: { grid: { display: false }}
+      },
+      animation: { duration: 700 }
+    }
+  });
+}
+
+// ─── Alliance chart ───────────────────────────────────────────
+let allianceChartInit = false;
+function initAllianceChart() {
+  if (allianceChartInit) return; allianceChartInit = true;
+  new Chart(document.getElementById('chartAlliances'), {
+    type: 'bar',
+    data: {
+      labels: ['Sindicatos Policiales','Asoc. FF.AA.','FEDIP (Detectives)','Asoc. Criminología','Colegios Abogados','YouTube/Podcasts','Empresas Seg. Privada'],
+      datasets: [{
+        label: 'Leads adicionales/mes (estimado)',
+        data: [40, 30, 15, 20, 25, 35, 20],
+        backgroundColor: [
+          'rgba(59,130,246,0.7)', 'rgba(139,92,246,0.7)', 'rgba(245,158,11,0.7)',
+          'rgba(16,185,129,0.7)', 'rgba(239,68,68,0.7)', 'rgba(251,191,36,0.7)', 'rgba(99,102,241,0.7)'
+        ],
+        borderWidth: 0,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false }},
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Leads/mes', color: '#64748b' }},
+        y: { grid: { display: false }}
+      },
+      animation: { duration: 900 }
+    }
+  });
+}
+</script>
+
+</body>
+</html>

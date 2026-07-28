@@ -29,7 +29,7 @@ var COLOR = {
 };
 
 var NOMBRE_HOJA_CALCULO = 'Control de Asignación de Leads - LISA Institute';
-var COMERCIALES = ['Frank', 'Valentina', 'Mafe'];
+var COMERCIALES = ['Frank', 'Valentina', 'Mafe', 'Guille', 'Ana'];
 var HOJA_REGISTRO = 'Registro Diario';
 var ULTIMA_FILA_DATOS = 100; // rango de trabajo para validaciones y fórmulas (filas 2-100)
 
@@ -119,7 +119,10 @@ function construirDashboard(sheet) {
   sheet.setRowHeight(7, 34);
   sheet.setFrozenRows(7);
 
-  // Filas de comerciales (8, 9, 10)
+  var filaInicioComerciales = 8;
+  var filaFinComerciales = 7 + COMERCIALES.length;
+
+  // Filas de comerciales (una por cada nombre en COMERCIALES, empezando en la fila 8)
   for (var i = 0; i < COMERCIALES.length; i++) {
     var fila = 8 + i;
     var nombre = COMERCIALES[i];
@@ -138,9 +141,10 @@ function construirDashboard(sheet) {
     var formulaCedidos =
       '=COUNTIFS(' + fCol + ',"<>No",' + eCol + ',A' + fila + ',' + gCol + ',"<>"&A' + fila + ')';
     var formulaTotalNeto = '=B' + fila + '+C' + fila + '+D' + fila + '-E' + fila;
+    var rangoPromedio = '$F$' + filaInicioComerciales + ':$F$' + filaFinComerciales;
     var formulaEstado =
-      '=IF(ABS(F' + fila + '-AVERAGE($F$8:$F$10))<=1,"EQUILIBRADO",' +
-      'IF(ABS(F' + fila + '-AVERAGE($F$8:$F$10))<=3,"AJUSTAR","DESFASE"))';
+      '=IF(ABS(F' + fila + '-AVERAGE(' + rangoPromedio + '))<=1,"EQUILIBRADO",' +
+      'IF(ABS(F' + fila + '-AVERAGE(' + rangoPromedio + '))<=3,"AJUSTAR","DESFASE"))';
 
     sheet.getRange(fila, 1).setValue(nombre).setFontWeight('bold');
     sheet.getRange(fila, 2).setFormula(formulaDirAcademica);
@@ -158,14 +162,14 @@ function construirDashboard(sheet) {
     sheet.getRange(fila, 1).setHorizontalAlignment('left');
   }
 
-  // Fila de totales (11)
+  // Fila de totales
   var filaTotales = 8 + COMERCIALES.length;
   sheet.getRange(filaTotales, 1).setValue('TOTAL');
-  sheet.getRange(filaTotales, 2).setFormula('=SUM(B8:B10)');
-  sheet.getRange(filaTotales, 3).setFormula('=SUM(C8:C10)');
-  sheet.getRange(filaTotales, 4).setFormula('=SUM(D8:D10)');
-  sheet.getRange(filaTotales, 5).setFormula('=SUM(E8:E10)');
-  sheet.getRange(filaTotales, 6).setFormula('=SUM(F8:F10)');
+  sheet.getRange(filaTotales, 2).setFormula('=SUM(B' + filaInicioComerciales + ':B' + filaFinComerciales + ')');
+  sheet.getRange(filaTotales, 3).setFormula('=SUM(C' + filaInicioComerciales + ':C' + filaFinComerciales + ')');
+  sheet.getRange(filaTotales, 4).setFormula('=SUM(D' + filaInicioComerciales + ':D' + filaFinComerciales + ')');
+  sheet.getRange(filaTotales, 5).setFormula('=SUM(E' + filaInicioComerciales + ':E' + filaFinComerciales + ')');
+  sheet.getRange(filaTotales, 6).setFormula('=SUM(F' + filaInicioComerciales + ':F' + filaFinComerciales + ')');
   sheet.getRange(filaTotales, 7).setValue('');
 
   sheet.getRange(filaTotales, 1, 1, 7)
